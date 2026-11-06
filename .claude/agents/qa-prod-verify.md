@@ -67,21 +67,22 @@ Input là danh sách task. Chạy tất cả cùng lúc.
    - Không chắc thuộc loại nào thì giữ fail và nêu trong báo cáo.
 6. **Testlane**, theo `.claude/testlane-status-sync.md`:
    - Mỗi case trong `meta.cases`: `update_test_case` với `fields: [{name: "Production", value: "<pass|fail|not-run> <ngày> — <spec id> — <tóm tắt / đường dẫn evidence | lý do chưa chạy>"}]`. `not-run` = chưa có kết luận (thiếu fixture, thiếu session, môi trường chặn), **không** ghi `fail`. **Không đổi `status` và `actualResult` staging của case.**
-   - Task có kết luận `PASS → đủ điều kiện Done` (spec của task + regression của nó + smoke đều pass, không có `not-run`, không còn ảnh chờ review): làm bước 6b (CCR). Chỉ khi submit CCR thành công mới `update_task` → `done`.
+   - Task có kết luận `PASS → đủ điều kiện Done` (spec của task + regression của nó + smoke đều pass, không có `not-run`, không còn ảnh chờ review): làm bước 6b (CCR). Chỉ khi submit CCR thành công, hoặc đã ghi kết quả "không cần CCR", mới `update_task` → `done`.
    - Còn spec fail: `update_task` → `waiting-for-dev`. Fail nằm ở regression của object khác thì vẫn giữ task, ghi rõ regression có thể do task này hoặc task khác trong cùng đợt deploy.
    - Còn ảnh chờ review: giữ `ready-to-deploy`, chờ người dùng xem.
 6b. **CCR (P7)**, chỉ cho task đủ điều kiện Done. Mục đích: đưa hành vi vừa được verify vào knowledge. Mỗi task một CCR.
-   - **Soạn** bằng skill `create-ccr` (tool `Skill`). Repo đích `$QA_KNOWLEDGE_DIR`, product `$QA_PRODUCT`. Input lấy từ `runs/<KEY>/` (`analysis.md`, `decisions.md`, `testcases.json`, `results.md`) cùng kết quả production của lượt này. Đọc Jira chỉ khi MCP Atlassian dùng được.
+   - **Không cần CCR:** đối chiếu BR của thay đổi với `runs/<KEY>/context.md`. Mọi BR đã có trong knowledge đúng như đã verify, và không có mục cập nhật flow nào, thì không soạn CCR. Ghi `ccr: { outcome: "not-needed", reason, kb_refs: [<product>/<object>/<kb_id>, ...] }` vào `manifest.tasks.<KEY>` và `runs/<KEY>/state.json`, rồi `update_task` → `done`. Không tạo CCR rỗng hoặc lặp lại canon. Còn nghi ngờ thì soạn CCR.
+   - **Soạn** bằng skill `create-ccr` (tool `Skill`, args có `workflow`: skill không hỏi lại). Repo đích `$QA_KNOWLEDGE_DIR`, product `$QA_PRODUCT`. Input lấy từ `runs/<KEY>/` (`analysis.md`, `decisions.md`, `testcases.json`, `results.md`) cùng kết quả production của lượt này. Đọc Jira chỉ khi MCP Atlassian dùng được.
      - **Claim** = BR của thay đổi có case `passed` trên staging và pass trên production. Không đưa case `expected-unconfirmed`, assumption chưa được trả lời, hay quan sát ngoài BR.
-     - **Nguồn:** `test_case` (id case Testlane + ngày chạy production), cộng `po_dev_confirm` nếu `decisions.md` có câu trả lời PO/Dev. Ngày nguồn = ngày chạy test hoặc ngày comment, **không** phải ngày resolve ticket. Trích nguyên văn: expected result / actual result của case, câu trả lời trong `decisions.md`.
+     - **Nguồn:** ghi đúng 1 loại mỗi claim. `decisions.md` có câu trả lời PO/Dev thì dùng `po_dev_confirm` và ghi id case ở Locator. Không có thì dùng `test_case` (id case Testlane + ngày chạy production) kèm **Căn cứ expected**: ticket, comment hoặc spec mà expected dựa vào, lấy từ Notes của case hoặc BR mà `Scope ref` trỏ tới. Ngày nguồn = ngày chạy test hoặc ngày comment, **không** phải ngày resolve ticket. Trích nguyên văn: expected result / actual result của case, câu trả lời trong `decisions.md`.
      - **Object / feature:** key IA của analysis. Key nằm ở dòng `Knowledge gap:` (key local): `feature_key` ghi `MỚI: <slug>`, kèm `name` và `scope` (Thuộc / Không thuộc) lấy từ `node scripts/qa/sync_objects.mjs --show <key>`. Object local: nêu thành ghi chú trong claim, không ghi như key có thật. Không đưa tag mã ticket.
      - **Không hỏi người dùng:** mức gấp `MEDIUM` (dùng `HIGH` chỉ khi CCR sửa một item knowledge đang sai với hành vi vừa verify), 1 CCR cho task này, chỉ giữ khối có dùng. Ghi các lựa chọn này vào report.
      - Lưu file: `runs/<KEY>/ccr.md`. Mọi dòng ở mục "BR cho CCR" của analysis đưa vào cùng CCR như một claim (nguồn `po_dev_confirm`, người xác nhận và trích nguyên văn lấy từ bảng). Mục "Cập nhật flow" trong `results.md` đưa vào khối C.
-   - **Đính vào task:** `get_task_ccr` trước. `ccrStatus = submitted` nghĩa là task đã submit rồi, không đính lại, coi như xong bước này. Còn lại thì `set_task_ccr_file` (filename `CCR-<YYYY-MM-DD>-<KEY>.md`).
+   - **Đính vào task:** `get_task_ccr` trước. `ccrStatus = submitted` nghĩa là task đã submit rồi, không đính lại. Lấy lại proposal id: `list_context_board_proposals({ project_id })`, tìm Proposal có `sourceTaskId` = id task Testlane, ghi vào `manifest.tasks.<KEY>.ccr` và `runs/<KEY>/state.json`. Không tìm thấy thì giữ `ready-to-deploy` và báo. Còn lại thì `set_task_ccr_file` (filename `CCR-<YYYY-MM-DD>-<KEY>.md`).
    - **Submit** bằng `submit_task_ccr`. Session chưa có tool này thì dừng ở đây: task giữ `ready-to-deploy`, `manifest.tasks.<KEY>.state = "ccr-attached"`, báo người dùng. **Không** dùng `create_proposal` thay thế, vì proposal tạo kiểu đó mất liên kết với task.
    - **Không** kéo Proposal sang `in-progress`: người dùng tự kéo khi muốn context builder xử lý. Phần xử lý sau submit không còn liên quan tới task.
    - Submit lỗi (vd còn `<<<`): sửa file, đính lại, submit lại. Vẫn lỗi thì giữ `ready-to-deploy`, báo lỗi.
-   - Submit thành công: ghi proposal id vào `manifest.tasks.<KEY>.ccr` và `runs/<KEY>/state.json`, rồi `update_task` → `done`.
+   - Submit thành công: ghi proposal id vào `manifest.tasks.<KEY>.ccr` và `runs/<KEY>/state.json`, kèm `knowledge_sha` lấy từ `runs/<KEY>/context.json`, rồi `update_task` → `done`.
 7. Cập nhật `manifest.tasks.<KEY>.state` = `prod-pass` / `ccr-attached` / `done` / `prod-fail` / `prod-not-run` (kết luận `NOT-RUN`: ghi `blockedBy` = cần gì để chạy), và ngày.
 
 ## Báo cáo (trả về)
@@ -89,7 +90,7 @@ Input là danh sách task. Chạy tất cả cùng lúc.
 ```
 ## Production verify — <ngày> — <KEY>, <KEY>
 Preflight: bản build <Last-Modified>, tenant <…>, session OK
-| Task | Spec của task | Regression | Kết luận | CCR (file · proposal id / chưa submit) | Status Testlane |
+| Task | Spec của task | Regression | Kết luận | CCR (file · proposal id / không cần · lý do / chưa submit) | Status Testlane |
 ### Spec không pass — phân loại + evidence (`evidence/<KEY>/production-<ngày>/`)
 ### Spec not-run — thiếu gì (fixture / session / quyết định của người dùng)
 ### Render cần xem — evidence/<KEY>/render-review/…

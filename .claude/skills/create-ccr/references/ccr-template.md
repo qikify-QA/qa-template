@@ -27,6 +27,7 @@ BR, hành vi mới hoặc đổi. Một block cho mỗi claim.
 - **Loại nguồn:** `<<< po_dev_confirm | test_case | dev_doc | spec_doc | KHÔNG CÓ NGUỒN >>>`
 - **Người xác nhận, ngày nguồn:** `<<< PO | Dev | QA, YYYY-MM-DD >>>`
 - **Locator:** `<<< comment, TC, PR, link nếu có >>>`
+- **Căn cứ expected:** `<<< chỉ khi nguồn là test_case: ticket, comment, spec hoặc câu trả lời PO/Dev mà expected của case dựa vào; không có thì "KHÔNG CÓ" >>>`
 - **Trích nguyên văn:**
   ```
   <<< câu gốc, không diễn giải >>>
