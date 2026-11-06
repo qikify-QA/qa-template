@@ -1,0 +1,13 @@
+{
+  "name": "qa-template",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:e2e": "playwright test --project=e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

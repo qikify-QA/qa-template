@@ -1,0 +1,22 @@
+{
+  "objects": {
+    "sample-object": {
+      "source": "local",
+      "label": "Object mẫu, xoá khi đã có key thật",
+      "scope": "Thuộc: ... Không thuộc: ...",
+      "evidence": "PROJ-123",
+      "features": [],
+      "localFeatures": {
+        "sample-feature": { "name": "Feature mẫu", "scope": "Thuộc: ... Không thuộc: ...", "evidence": "PROJ-123" }
+      },
+      "affects": [],
+      "fixtures": {
+        "staging": { "sample-fixture": { "path": "/" } },
+        "production": { "sample-fixture": { "path": "/" } }
+      }
+    }
+  },
+  "tasks": {
+    "PROJ-123": { "objects": ["sample-object"], "features": ["sample-object/sample-feature"] }
+  }
+}

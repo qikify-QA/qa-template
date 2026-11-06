@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--user-data-dir",
+        ".playwright-profile-1",
+        "--output-dir",
+        ".playwright-mcp"
+      ]
+    },
+    "playwright-2": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--user-data-dir",
+        ".playwright-profile-2",
+        "--output-dir",
+        ".playwright-mcp"
+      ]
+    },
+    "playwright-3": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--user-data-dir",
+        ".playwright-profile-3",
+        "--output-dir",
+        ".playwright-mcp"
+      ]
+    },
+    "testlane": {
+      "type": "http",
+      "url": "<URL MCP Testlane của team>"
+    },
+    "atlassian": {
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v2/mcp"
+    },
+    "postman": {
+      "type": "http",
+      "url": "https://mcp.postman.com/mcp",
+      "headers": {
+        "Authorization": "Bearer <POSTMAN_API_KEY>"
+      }
+    }
+  }
+}
