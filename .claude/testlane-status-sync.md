@@ -22,7 +22,7 @@ Mục tiêu: nhìn Testlane là biết issue đang ở đâu, không cần đọ
 | Hết lượt execute (và review render đã xong): có case `failed` | `waiting-for-dev` | qa-execute-testcase / qa-issue-run |
 | Không có `failed`, nhưng còn case `blocked` / `expected-unconfirmed` / `not-run` chờ PO, Dev hoặc deploy | `waiting-for-dev` | như trên |
 | Mọi case `passed` hoặc `skipped` có lý do, không còn gì chờ | `ready-to-deploy` | như trên |
-| Dev báo đã deploy → `qa-prod-verify` chạy production: spec của task + regression + smoke **pass hết**, không còn render chờ review, **và CCR của task đã submit thành công** | `done` | qa-prod-verify |
+| Dev báo đã deploy → `qa-prod-verify` chạy production: spec của task + regression + smoke **pass hết**, không còn render chờ review, **và CCR của task đã submit thành công hoặc đã ghi "không cần CCR" kèm lý do** | `done` | qa-prod-verify |
 | Production pass nhưng CCR chưa submit được (chưa có tool submit, submit lỗi) | giữ `ready-to-deploy` | — |
 | Production verify có spec fail | `waiting-for-dev` | qa-prod-verify |
 | Production verify còn ảnh render chờ review / thiếu fixture | giữ `ready-to-deploy` | — |
@@ -50,5 +50,5 @@ Status cuối được tính lại từ status thật của các case trên Test
 ## 4. Không làm
 
 - Không sửa notes / title / tags / assignee của task, không đính ảnh, không comment Jira, không tự `report_bug` (scope execute vẫn như cũ — chỉ thêm case, update status case và status task).
-- Chỉ `qa-prod-verify` được đặt `done`, và chỉ khi production verify của task pass hết và CCR của task đã submit. Đính CCR vào task (`set_task_ccr_file`) là ghi field CCR của task — được phép; không kéo Proposal trên Context Builder Board.
+- Chỉ `qa-prod-verify` được đặt `done`, và chỉ khi production verify của task pass hết và CCR của task đã submit hoặc đã ghi "không cần CCR" kèm lý do. Đính CCR vào task (`set_task_ccr_file`) là ghi field CCR của task — được phép; không kéo Proposal trên Context Builder Board.
 - Kết quả production ghi vào field `Production` của case (`pass` / `fail` / `not-run` + ngày + spec + evidence hoặc lý do); **không** đổi `status` / `actualResult` staging của case. `not-run` không phải `fail`.
