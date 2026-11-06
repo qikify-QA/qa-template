@@ -11,7 +11,7 @@ Cần Node 20.12 trở lên. Script tự đọc `.env` ở gốc repo. Biến đ
 | `prod-run.mjs` | Chọn và chạy spec trong `tests/prod/` theo task, xem `tests/prod/README.md` |
 | `poll.mjs` | Chờ tới khi điều kiện đúng (lệnh shell hoặc URL), thay cho `sleep N` |
 | `sync_objects.mjs` | Bộ key object/feature (knowledge + local), chọn key theo phạm vi, xem `tests/prod/README.md` |
-| `kb_context.mjs` | Lấy knowledge của các key một issue → `runs/<KEY>/context.md` (oracle / quan sát / gap), tự `git pull` |
+| `kb_context.mjs` | Lấy knowledge của các key một issue → `runs/<KEY>/context.md` (oracle / cần xác nhận / quan sát / gap). Lần đầu `git pull` rồi ghim full SHA vào `context.json`, các lần sau đọc đúng SHA đó; `--refresh` lấy bản mới và liệt kê item đổi. Test: `npm run test:scripts` |
 | `product/<product>.mjs` | Helper riêng của product, QA tự viết khi cần (xem mục dưới) |
 | `examples/` | Case mẫu mở trang `data:`, không cần mạng. Chạy lại sau khi sửa `lib.mjs` |
 

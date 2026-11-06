@@ -14,7 +14,7 @@ Người dùng giao lẻ từng bước thì vẫn gọi skill/agent tương ứ
 | File | Dùng để |
 |---|---|
 | `<knowledge>/_product-guide.md` | Bản đồ, môi trường, giới hạn test; gắn `env-blocked` sớm |
-| `node scripts/qa/kb_context.mjs` → `runs/<KEY>/context.md` | Knowledge của feature (chỉ item `CONFIRMED_EXPECTED` là oracle) |
+| `node scripts/qa/kb_context.mjs` → `runs/<KEY>/context.md` | Knowledge của feature (oracle = `CONFIRMED_EXPECTED` có nguồn hợp lệ, không conflict, không known defect), ghim một snapshot cho cả run |
 | `.claude/testlane-status-sync.md` mục 0 | Project Testlane `TESTLANE_PROJECT_ID`; Testlane chỉ cho task/case, không đọc context ở đó |
 | `.claude/test-data-catalog.md` | Data đặc thù có sẵn |
 | `<knowledge>/_flows/troubleshooting.md` | Cách gỡ block đã gặp |
@@ -34,7 +34,8 @@ Người dùng giao lẻ từng bước thì vẫn gọi skill/agent tương ứ
 | `testcases.json` | gen-testcase | Task Testlane + mapping case, nhãn, mã `A`/`Q` |
 | `data.json` | qa-test-data, create-test-data | ID data đã dựng, case phục vụ, phần blocked |
 | `ledger.md` | qa-test-data | Ledger data của issue |
-| `context.md` | `node scripts/qa/kb_context.mjs` (gọi trong qa-requirement-analysis) | Knowledge của các key IA: oracle / quan sát / gap |
+| `context.md` | `node scripts/qa/kb_context.mjs` (gọi trong qa-requirement-analysis) | Knowledge của các key IA: oracle / cần xác nhận / quan sát / gap |
+| `context.json` | `kb_context.mjs` | Full SHA của snapshot, key, kết quả pull |
 | `ccr.md` | qa-prod-verify (P7) | CCR của task, đính vào task Testlane |
 | `results.md` | qa-execute-testcase | Báo cáo execute (= Gate 2 của issue) |
 | `timeline.jsonl` | `scripts/issue_timing.py` | Mốc thời gian từng bước làm / chờ (chỉ ghi nối thêm) |
